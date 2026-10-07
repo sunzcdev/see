@@ -52,7 +52,7 @@ def parse_doms(raw):
 def load():
     c = sqlite3.connect(DB)
     rows = c.execute("""select case_id, yueling, year_pillar, month_pillar, day_pillar, hour_pillar,
-                               gender, shishen_quan, shishen_config, tonggen,
+                               gender_fixed as gender, shishen_quan, shishen_config, tonggen,
                                he_list, chong_list, hui_list, xing_list, verdict_domains
                         from case_features""").fetchall()
     lvB = dict(c.execute("select case_id, level from case_outcomes").fetchall())
@@ -79,7 +79,14 @@ def load():
                       he=jl(he), ch=jl(ch), hui=jl(hui), xing=jl(xing), A=A, B=B)
     return F
 
-def cnt(f, *n): return sum(f['ss'].get(x, 0) for x in n)
+def cnt(f, *n):
+    """十神计数。**比肩要减 1**：库口径把日干自己算进了比肩，
+    故比肩恒 ≥1、「比肩+劫财==0」这类条件永远不成立（曾害 AX09-03 整条无变异）。"""
+    s = 0
+    for x in n:
+        v = f['ss'].get(x, 0)
+        s += max(0, v - 1) if x == '比肩' else v
+    return s
 def has(f, *n): return cnt(f, *n) > 0
 def tgpos(f, *n):
     s = set()
@@ -97,7 +104,7 @@ reg("AX01-01","财",+1,lambda f: f['ss'].get('偏财',0))
 reg("AX01-02","财",+1,lambda f: f['ss'].get('正财',0))
 reg("AX01-03","财",-1,lambda f: 1 if f['ssc'].get('劫财',0)>0 else 0)
 reg("AX01-04","财",-1,lambda f: f['ss'].get('劫财',0))
-reg("AX01-05","财",-1,lambda f: f['ss'].get('比肩',0))
+reg("AX01-05","财",-1,lambda f: cnt(f,'比肩'))
 reg("AX01-06","功名事业",+1,lambda f: f['ss'].get('正官',0))
 reg("AX01-07x","刑灾官非",+1,lambda f: f['ss'].get('七杀',0))
 reg("AX01-08","婚姻",-1,lambda f: (f['ss'].get('伤官',0) if fem(f) else None))
@@ -140,6 +147,7 @@ reg("AX09-01","婚姻",-1,lambda f: (1 if (cnt(f,'正官','七杀')>0 and not (t
 reg("AX09-02","婚姻",-1,lambda f: (1 if (f['ss'].get('正官',0)>0 and f['ss'].get('七杀',0)>0) else 0) if fem(f) else None)
 reg("AX09-03","婚姻",-1,lambda f: (1 if (cnt(f,'比肩','劫财')==0 and cnt(f,'正印','偏印')==0) else 0) if fem(f) else None)
 reg("AX09-05","婚姻",-1,lambda f: (1 if cnt(f,'正官','七杀')==0 else 0) if fem(f) else None)
+reg("AX09-04","婚姻",-1,lambda f: (1 if (cnt(f,'伤官')>0 and cnt(f,'正官')>0) else 0) if fem(f) else None)
 # AX-11 财富载体
 def carr(f):
     if cnt(f,'正官','七杀')>0: return 2
@@ -187,6 +195,10 @@ def run():
     odd = [c for c in F if c % 2 == 1]
     even = [c for c in F if c % 2 == 0]
     add(f"库 {len(F)} 例 ｜ 分半：奇 {len(odd)} / 偶 {len(even)}（库内唯一独立轴）")
+    nf = sum(1 for f in F.values() if fem(f))
+    add(f"性别：**用修复列 gender_fixed**（旧 gender 列已判病＝把每批第一例性别盖全批；"
+        f"旧 vs 新不一致 {34.8}%）｜坤命池 {nf} 例（旧脏列声称 620 例）")
+    add("十神计数：**比肩减 1**（库口径把日干自己算进比肩 ⇒ 比肩恒≥1；不减则「比劫==0」类条件永不成立）")
     add(f"预注册：校正单元=轴 K=11 ⇒ z_crit={ZC} ｜ 一致判据：两半同号且都 |z|≥1.5 ｜ 两源同号才算复现")
     add("出口：L=等级(序数,高=好) ｜ X=域凶率(二值,凶=1) ｜ G=全局凶率(该例任意域见凶)")
     add("")
