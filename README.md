@@ -20,6 +20,14 @@
 
 方法论正文见 **[`METHOD.md`](METHOD.md)**。
 
+> 🧭 **第一次来？先看这两份**
+> - **[`docs/beginner-report.md`](docs/beginner-report.md)** —— 写给**八字初学者**的最终报告：这项目在干嘛、敢说什么、能拿来干嘛（零基础可读）。
+> - **[`docs/conclusions-register.md`](docs/conclusions-register.md)** —— **结论总册**：目前敢说的 / 不敢说的 / 说过又被自己推翻的，全在这一页。
+>
+> 🔍 **它自己查自己的两份记录（2026-10-09）**
+> - [`docs/self-review-20261009.md`](docs/self-review-20261009.md) —— 代码层九探针（对表／重跑复现／常量单源／判据↔实现／声明↔定义／覆盖空组／公式↔判据）
+> - [`docs/theory-review-20261009.md`](docs/theory-review-20261009.md) —— 命理理论层（十神**独立重算** 2322/2322；大运方向 90 例配错；一处**自我撤回**）
+
 ---
 
 ## 方法骨架（速览）

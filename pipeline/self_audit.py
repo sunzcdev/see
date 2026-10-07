@@ -19,7 +19,8 @@ HOURS = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23]   # timeIndex 0=早子 �
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILLDIR = os.path.dirname(HERE)
-LEDGER = os.path.join(HERE, "ledger.jsonl")
+# 账本路径：默认同目录；可用环境变量指向副本，供**演练**用（真账本不许拿来做实验）
+LEDGER = os.environ.get("SELF_AUDIT_LEDGER") or os.path.join(HERE, "ledger.jsonl")
 MINGYU_CALL = os.path.expanduser("~/projects/bazi-verify/mingyu_call.py")
 SXTWL_PY = os.path.expanduser("~/.venvs/sxtwl-env/bin/python")
 JEV = os.path.expanduser("~/.hermes/profiles/see/skills/mingli/jev-discipline-check/scripts/jev_check.py")

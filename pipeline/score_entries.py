@@ -58,7 +58,7 @@ def load():
     rows = c.execute("""select case_id, yueling, year_pillar, month_pillar, day_pillar, hour_pillar,
                                gender_fixed as gender, shishen_quan, shishen_config, tonggen,
                                he_list, chong_list, hui_list, xing_list, verdict_domains,
-                               shishen_ruler_ver
+                               shishen_ruler_ver, pattern_switches
                         from case_features""").fetchall()
     lvB = dict(c.execute("select case_id, level from case_outcomes").fetchall())
     polB = dict(c.execute("select case_id, verdict from case_outcomes").fetchall())
@@ -67,7 +67,7 @@ def load():
     for _cid, _dom, _s in c.execute("select case_id, dom, sev from case_severity"):
         sevT.setdefault(_cid, {})[_dom] = _s
     F = {}
-    for (cid, yl, py, pm, pd, ph, g, ssq, ssc, tg, he, ch, hui, xing, vdom, sver) in rows:
+    for (cid, yl, py, pm, pd, ph, g, ssq, ssc, tg, he, ch, hui, xing, vdom, sver, psq) in rows:
         pil = [py, pm, pd, ph]
         j = lambda s: json.loads(s) if s else {}
         ss, sscd, tgd = j(ssq), j(ssc), j(tg)
@@ -86,7 +86,7 @@ def load():
             else: B[k] = (B[k][0] or p, B[k][1] if B[k][1] is not None else l)
         F[cid] = dict(cid=cid, yl=yl, pil=pil, day=pd, g=g, ss=ss, ssc=sscd, tg=tgd, wx=wx,
                       he=jl(he), ch=jl(ch), hui=jl(hui), xing=jl(xing), A=A, B=B,
-                      sev=sevT.get(cid, {}), ver=(sver or 1))
+                      sev=sevT.get(cid, {}), ver=(sver or 1), ps=jl(psq))   # ps=人工格局开关（打标要用）
     return F
 
 def cnt(f, *n):
