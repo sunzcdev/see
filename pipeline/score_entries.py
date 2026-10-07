@@ -18,7 +18,9 @@ import sqlite3, json, math, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DB = os.path.join(HERE, "..", "jinxiang.db")
-ZC = 2.84
+# 多重比较红线：校正单元=轴 K=11 ⇒ 2.84。本轮新增 S 出口族（刑灾官非 9 条×源T）＋子女域改键，
+# 测量量上升，按 K=13 取严 ⇒ 2.86。
+ZC = 2.86
 
 GAN_WX = {'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'}
 ZHI_WX = {'寅':'木','卯':'木','巳':'火','午':'火','辰':'土','戌':'土','丑':'土','未':'土',
@@ -57,6 +59,10 @@ def load():
                         from case_features""").fetchall()
     lvB = dict(c.execute("select case_id, level from case_outcomes").fetchall())
     polB = dict(c.execute("select case_id, verdict from case_outcomes").fetchall())
+    # S 出口：域内严重度（原文事实段抽取，条件化＝只在有该域结局的例内分轻重）
+    sevT = {}
+    for _cid, _dom, _s in c.execute("select case_id, dom, sev from case_severity"):
+        sevT.setdefault(_cid, {})[_dom] = _s
     F = {}
     for (cid, yl, py, pm, pd, ph, g, ssq, ssc, tg, he, ch, hui, xing, vdom) in rows:
         pil = [py, pm, pd, ph]
@@ -76,7 +82,8 @@ def load():
             if k not in B: B[k] = (p, l)
             else: B[k] = (B[k][0] or p, B[k][1] if B[k][1] is not None else l)
         F[cid] = dict(cid=cid, yl=yl, pil=pil, day=pd, g=g, ss=ss, ssc=sscd, tg=tgd, wx=wx,
-                      he=jl(he), ch=jl(ch), hui=jl(hui), xing=jl(xing), A=A, B=B)
+                      he=jl(he), ch=jl(ch), hui=jl(hui), xing=jl(xing), A=A, B=B,
+                      sev=sevT.get(cid, {}))
     return F
 
 def cnt(f, *n):
@@ -129,7 +136,10 @@ reg("AX03-04","财",-1,lambda f: 1 if (cnt(f,'正财','偏财')>=3 and cnt(f,'�
 reg("AX04-01","功名事业",+1,lambda f: 1 if (tgpos(f,'正官','七杀') & {'年','月'}) else 0)
 reg("AX04-02x","刑灾官非",+1,lambda f: 1 if (tgpos(f,'七杀') & {'日','时'}) else 0)
 reg("AX04-03","财",+1,lambda f: 1 if (tgpos(f,'正财','偏财') & {'年','月'}) else 0)
-reg("AX04-04x","六亲",-1,lambda f: (1 if (tgpos(f,'伤官') & {'时'}) else 0) if fem(f) else None)
+# 2026-10-07 改键：原注册在「六亲」（语料仅 135 例、130 例为丧父母，出口天生单极）；
+# 库内有独立的「子女」域（60 例，吉凶 22/36 ⇒ 二值出口健康）——域键写错＝白卡死。
+reg("AX04-04x","子女",-1,lambda f: (1 if (tgpos(f,'伤官') & {'时'}) else 0) if fem(f) else None)
+reg("AX04-04y","子女",-1,lambda f: 1 if (tgpos(f,'伤官') & {'时'}) else 0)   # 声明变体：不限性别
 # AX-05
 reg("AX05-01","婚姻",-1,lambda f: hit(f['ch'], dayzhi(f)))
 reg("AX05-02","婚姻",-1,lambda f: hit(f['he'], dayzhi(f)))
@@ -174,7 +184,11 @@ def stat(fn, dom, outc, key, ids, F):
         try: v = fn(f)
         except Exception: v = None
         if v is None: continue
-        if outc == "G":
+        if outc == "S":
+            sv = f['sev'].get(dom)
+            if not sv: continue          # 0/缺 = 该例此域没测到严重度，不冒充「最轻」
+            yv = sv
+        elif outc == "G":
             pols = [p for p, _ in f[key].values() if p is not None]
             if not pols: continue
             yv = 1 if '凶' in pols else 0
@@ -189,6 +203,39 @@ def stat(fn, dom, outc, key, ids, F):
         b.append(v); y.append(yv)
     return z_linlin(b, y)
 
+def health(dom, outc, key, F):
+    """出口健康度：n / 基线率(等级出口给均值) / 档数 / 判定。
+    退化出口（P0<5% 或 >95%）上的 z 不可读——它测的是极少数反常例，不是规律。"""
+    ys = []
+    for f in F.values():
+        if outc == "S":
+            sv = f['sev'].get(dom)
+            if sv: ys.append(sv)
+            continue
+        d = f[key]
+        if outc == "G":
+            pols = [p for p, _ in d.values() if p is not None]
+            if pols: ys.append(1 if '凶' in pols else 0)
+        else:
+            pol, lvl = d.get(dom, (None, None))
+            if outc == "L":
+                if lvl is not None: ys.append(lvl)
+            elif pol is not None:
+                ys.append(1 if pol == '凶' else 0)
+    n = len(ys)
+    if n == 0: return 0, float('nan'), 0, "无样本"
+    p0 = sum(ys) / n
+    if outc in ("L", "S"):
+        c = {}
+        for v in ys: c[v] = c.get(v, 0) + 1
+        k = len(c)
+        hh = -sum((v/n)*math.log2(v/n) for v in c.values())/math.log2(k) if k > 1 else 0.0
+        return n, p0, k, ("OK" if (k >= 3 and hh >= 0.5) else ("分辨率不足" if k < 3 else f"集中H={hh:.2f}"))
+    fl = "OK"
+    if p0 < .05 or p0 > .95: fl = "退化(单极)"
+    elif p0 < .15 or p0 > .85: fl = "偏斜"
+    return n, p0, 2, fl
+
 def run():
     F = load()
     L = []; add = L.append
@@ -201,19 +248,45 @@ def run():
     add("十神计数：**比肩减 1**（库口径把日干自己算进比肩 ⇒ 比肩恒≥1；不减则「比劫==0」类条件永不成立）")
     add(f"预注册：校正单元=轴 K=11 ⇒ z_crit={ZC} ｜ 一致判据：两半同号且都 |z|≥1.5 ｜ 两源同号才算复现")
     add("出口：L=等级(序数,高=好) ｜ X=域凶率(二值,凶=1) ｜ G=全局凶率(该例任意域见凶)")
+    add("     S=域内严重度(序数,高=更重；只在无等级出口的域启用：刑灾官非/六亲/子女)")
+    add("     源T=原文事实段（S 只有这一个源 ⇒ S 结果最高只算「单源一致」，不得当跨源复现）")
     add("")
-    add(f"{'条目':<11}{'域':<9}{'出口':<4}{'源':<3}{'n':>5}{'z奇':>8}{'z偶':>8}  判定")
+    # 出口家底：哪个域有哪种出口（L 与 S 不并行启用，避免无谓测量）
+    DOMHAS_L, DOMHAS_S = set(), set()
+    for f in F.values():
+        for k in ("A", "B"):
+            for d, (p, l) in f[k].items():
+                if l is not None: DOMHAS_L.add(d)
+        for d, s in f['sev'].items():
+            if s: DOMHAS_S.add(d)
+    HD = {}
+    DOMS = sorted({d for d, _, _ in P.values()})
+    for dom in DOMS:
+        ol = (("L",) if dom in DOMHAS_L else (("S",) if dom in DOMHAS_S else ())) + ("X",)
+        for outc in ol:
+            for key in (("T",) if outc == "S" else ("A", "B")):
+                HD[(dom, outc, key)] = health(dom, outc, key, F)
+    for key in ("A", "B"):
+        HD[("(全局)", "G", key)] = health(DOMS[0], "G", key, F)
+    add(f"{'条目':<11}{'域':<9}{'出口':<4}{'源':<3}{'n':>5}{'z奇':>8}{'z偶':>8}  {'出口健康':<12}判定")
     add("-"*80)
     rows = []
+    STUCK, OKROWS = {}, set()
     for eid, (dom, sign, fn) in P.items():
-        for outc in ("L", "X", "G"):
+        ol = (("L",) if dom in DOMHAS_L else (("S",) if dom in DOMHAS_S else ())) + ("X", "G")
+        for outc in ol:
             sgn = sign if outc == "L" else -sign
-            for sname, key in (("A", "A"), ("B", "B")):
+            keys = (("T", "T"),) if outc == "S" else (("A", "A"), ("B", "B"))
+            for sname, key in keys:
                 z1, n1, w1 = stat(fn, dom, outc, key, odd, F)
                 z2, n2, w2 = stat(fn, dom, outc, key, even, F)
                 if z1 is None or z2 is None:
-                    add(f"{eid:<11}{dom:<9}{outc:<4}{sname:<3}{max(n1,n2):>5}{'—':>8}{'—':>8}  {w1 or w2 or '样本不足'}")
+                    STUCK.setdefault(eid, set()).add(w1 or w2 or "样本不足")
+                    flag0 = HD.get((dom, outc, key), HD.get(("(全局)", "G", key), (0, 0.0, 0, "")))[3]
+                    add(f"{eid:<11}{dom:<9}{outc:<4}{sname:<3}{max(n1,n2):>5}{'—':>8}{'—':>8}  "
+                        f"{flag0:<12}{w1 or w2 or '样本不足'}")
                     continue
+                OKROWS.add(eid)
                 both = min(abs(z1), abs(z2))
                 agree = (z1 > 0) == (z2 > 0)
                 if agree and both >= ZC:
@@ -224,9 +297,25 @@ def run():
                     tag = "×两半反向"
                 else:
                     tag = "·平"
-                add(f"{eid:<11}{dom:<9}{outc:<4}{sname:<3}{min(n1,n2):>5}{z1:+8.2f}{z2:+8.2f}  {tag}")
+                flag = HD.get((dom, outc, key), HD.get(("(全局)", "G", key), (0, 0.0, 0, "")))[3]
+                if flag != "OK" and (agree and both >= 1.5):
+                    tag += "｜但出口不健康"
+                add(f"{eid:<11}{dom:<9}{outc:<4}{sname:<3}{min(n1,n2):>5}{z1:+8.2f}{z2:+8.2f}  {flag:<12}{tag}")
                 if both >= 1.5 and agree:
                     rows.append((both, eid, dom, outc, sname, z1, z2, tag))
+    add("")
+    add("== 出口健康度（全库样本；退化/偏斜出口上的 z 不可读）==")
+    add(f"  {'域':<10}{'出口':<5}{'源':<4}{'全库n':>6}{'基线率/等级均值':>16}{'档数':>5}  判定")
+    for dom in DOMS:
+        ol = (("L",) if dom in DOMHAS_L else (("S",) if dom in DOMHAS_S else ())) + ("X",)
+        for outc in ol:
+            for key in (("T",) if outc == "S" else ("A", "B")):
+                n, p0, k, fl = HD[(dom, outc, key)]
+                v = f"{p0:.2f}" if outc in ("L", "S") else (f"{p0:.1%}" if n else "—")
+                add(f"  {dom:<10}{outc:<5}{key:<4}{n:>6}{v:>16}{k:>5}  {fl}")
+    for key in ("A", "B"):
+        n, p0, k, fl = HD[("(全局)", "G", key)]
+        add(f"  {'(全局)':<10}{'G':<5}{key:<4}{n:>6}{(f'{p0:.1%}' if n else '—'):>16}{k:>5}  {fl}")
     add("")
     add("== 两半一致（|z|≥1.5 且同号）——排序＝较弱半的强度 ==")
     for both, eid, dom, outc, sname, z1, z2, tag in sorted(rows, reverse=True):
@@ -240,9 +329,15 @@ def run():
     best = [f"{e}·{o}" for (e, o), s in key2.items() if len(s) == 2]
     add("  " + (", ".join(sorted(best)) if best else "（无）"))
     add("")
-    add("== 结构性测不动（无出口/无变异）==")
-    for eid in ("AX01-07x","AX02-01x","AX02-03x","AX02-05x","AX03-01x","AX03-03x","AX04-02x","AX04-04x","AX06-02x"):
-        add(f"  {eid}: 刑灾官非/六亲 域在库内无出口（54 例全凶、零吉向、无等级）或被测条件无变异")
+    add("== 结构性测不动（全行无数字；原因自动来自打分器，不再手写）==")
+    for eid in sorted(STUCK):
+        why = "/".join(sorted(STUCK[eid]))
+        if eid in OKROWS:
+            add(f"  {eid}: 部分出口测不动（{why}），另有出口已出数")
+        else:
+            add(f"  {eid}: {why}")
+    if not STUCK:
+        add("  （无）")
     add("")
     add("== 跳过 ==")
     for k, v in SKIP.items(): add(f"  {k}: {v}")

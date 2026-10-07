@@ -73,8 +73,8 @@ E = [
       src="道秀(七杀无制非贫则夭)", status="half", res="有制组窄口径 z=+2.06；根气三档 44.8/48.4/40.2 未定"),
  dict(id="AX01-08", axis="AX-01", name="伤官≥1 → 婚姻↓（女命）",
       cond="坤造 ∧ shishen_quan 中伤官 ≥1", dir="婚姻域↓",
-      mech="伤官克官，官=夫星 ⇒ 克夫", bnd="须带财/印通关条件切分；坤造池 620 例",
-      src="子平真诠+巾箱(伤官见官)", status="half", res="坤造 +14.6%（56.8%→??），z=1.44<1.96，每臂需≈171"),
+      mech="伤官克官，官=夫星 ⇒ 克夫", bnd="须带财/印通关条件切分；坤造池 586 例（2026-10-07 修）",
+      src="子平真诠+巾箱(伤官见官)", status="half", res="干净池全平（n=28/73，L·A 两半反向 −2.04/+0.77）；旧 +14.6% 作废"),
  dict(id="AX01-09", axis="AX-01", name="食神≥1 → 寿元↑",
       cond="shishen_quan 中食神个数 ≥1", dir="寿元域↑",
       mech="食神为寿神/食禄；食神不被夺则寿", bnd="须排除枭神夺食臂（AX01-10）",
@@ -96,11 +96,11 @@ E = [
  dict(id="AX02-03", axis="AX-02", name="伤官见官 → 刑灾↑/婚姻↓",
       cond="伤官≥1 ∧ 正官≥1", dir="刑灾官非↑；女命婚姻↓",
       mech="伤官克官 ⇒ 诉讼/疾病「两院之灾」", bnd="须分「谁强谁弱、有无财印通关」；不切分必平",
-      src="巾箱+道秀", status="half", res="坤造池 +14.6%，方向对未过线"),
+      src="巾箱+道秀", status="half", res="干净池全平；旧「坤造池 +14.6%」系脏性别列造的假信号，已作废"),
  dict(id="AX02-04", axis="AX-02", name="比劫夺财 → 财↓",
       cond="比劫≥2 ∧ 财≥1", dir="财域↓",
       mech="比劫夺财", bnd="命中率92.1% ⇒ 条件人人满足，压不动",
-      src="子平真诠", status="ok", res="压不动（命中92.1%，无区分力）"),
+      src="子平真诠", status="ok", res="压不动（命中92.1%，无区分力）；比肩计数修正后仍平"),
  dict(id="AX02-05", axis="AX-02", name="食神制杀 → 刑灾↓",
       cond="食神≥1 ∧ 七杀≥1", dir="刑灾官非↓",
       mech="食神制杀，杀被制则不为祸", bnd="制杀太过则转「不宜当官」（AX02-08）",
@@ -188,7 +188,7 @@ E = [
  dict(id="AX06-03", axis="AX-06", name="水多火弱 → 上热下寒（健康）",
       cond="水≥3 ∧ 火≤1", dir="健康（需健康域）",
       mech="火主心血、水主寒湿；火弱则阳不达下", bnd="⚠库无健康域 ⇒ 见未蒸清单",
-      src="实盘先例(自用盘)", status="wait", res=""),
+      src="实盘(振朝原局)", status="wait", res=""),
 
  # --- AX-07 墓库轴 ---
  dict(id="AX07-01", axis="AX-07", name="有墓库(辰戌丑未) → 事业持续性",
@@ -214,27 +214,27 @@ E = [
       mech="寒木向阳，泄秀生财，木火通明格", bnd="巾箱单格诀，n≈3 ⇒ 只能当 C 档参照（见未蒸清单）",
       src="巾箱(甲子日元寅月)", status="wait", res=""),
 
- # --- AX-09 女命夫星轴（坤造 620） ---
+ # --- AX-09 女命夫星轴（坤造 586；性别列 2026-10-07 判病并修复，旧列把每批第一例性别盖全批）---
  dict(id="AX09-01", axis="AX-09", name="夫星透干无根 → 婚姻↓",
       cond="坤造 ∧ 官杀仅在天干 ∧ 无支根", dir="婚姻域↓",
       mech="夫星虚浮无根 ⇒ 夫缘不实", bnd="——",
-      src="坤造池回调", status="ok", res="未复现：−3.9%"),
+      src="坤造池回调", status="half", res="干净池全平（旧 −3.9% 系脏性别列所致；n=28/73）"),
  dict(id="AX09-02", axis="AX-09", name="官杀混杂 → 婚姻↓",
       cond="坤造 ∧ 正官≥1 ∧ 七杀≥1", dir="婚姻域↓",
       mech="夫星不专，情感难专", bnd="——",
-      src="坤造池回调", status="ok", res="未复现：+1.0%"),
+      src="坤造池回调", status="half", res="干净池全平（旧 +1.0%）"),
  dict(id="AX09-03", axis="AX-09", name="身弱 → 婚姻↓",
       cond="坤造 ∧ 日主无根无印", dir="婚姻域↓",
       mech="身弱难任夫星", bnd="——",
-      src="坤造池回调", status="ok", res="未复现：−6.6%"),
+      src="坤造池回调", status="half", res="干净池仍无变异：条件（比劫=0 ∧ 印=0）极窄，全库几无命中"),
  dict(id="AX09-04", axis="AX-09", name="伤官见官 → 婚姻↓  ★",
       cond="坤造 ∧ 伤官≥1 ∧ 正官≥1", dir="婚姻域↓",
-      mech="伤官克夫星", bnd="须扩到每臂 n≥171；不切分通关则力度弱",
-      src="坤造池回调", status="half", res="存活但未过线：+14.6%"),
+      mech="伤官克夫星", bnd="干净池已测：平；旧结论作废",
+      src="坤造池回调", status="half", res="★破：干净池全平；旧「+14.6%／G·B +2.12」系脏性别池造的假信号"),
  dict(id="AX09-05", axis="AX-09", name="夫星不显(无官杀) → 婚姻↓/晚婚",
       cond="坤造 ∧ 官殺个数=0", dir="婚姻域（婚否/婚龄）",
       mech="无夫星则夫缘迟或改以财/比劫论夫", bnd="现代派有「以财为夫」变体，须并测",
-      src="bazi-live-duanming(夫星选有根)", status="wait", res=""),
+      src="bazi-live-duanming(夫星选有根)", status="half", res="干净池全平"),
 
  # --- AX-10 岁运应期轴（限 case_events 212 例）---
  dict(id="AX10-01", axis="AX-10", name="大运出现原局忌字 → 该运应凶",
@@ -265,6 +265,68 @@ UNSTEAMED = [
  ("巾箱 1817 条单格诀", "域锁死「日柱×月令」，每格 n≈3，统计层无解", "只当 C 档参照，不进统计层（体例天花板）"),
  ("基外成分（风水/时代/选择/关系）", "不在四柱可算范围内", "按 first-principles §5：模糊出在「认不全」，须承认此限"),
 ]
+
+
+def load_scores(here):
+    """从 score-splithalf.txt 读「机器状态」——状态的真源是打分器，不是手写。
+    理由：手写状态曾僵住 20 条（跑了却没回写），而条目册是「敢说清单」的底账，
+    底账一旦和实测脱钩就不可信。手写字段降级为「备注」，保留追溯。"""
+    import re
+    p = os.path.join(here, "score-splithalf.txt")
+    if not os.path.exists(p):
+        return set(), [], set(), {}, set()
+    NUM, AGREE, CROSS, ROWS, REG = set(), [], set(), {}, set()
+    sec = ""
+    for ln in open(p, encoding="utf-8"):
+        s = ln.rstrip("\n")
+        if s.startswith("=="):
+            sec = s.strip("= ").split("（")[0]
+            continue
+        if sec == "两源都进上表":
+            for part in s.strip().split(","):
+                part = part.strip()
+                if "·" in part:
+                    e, o = part.split("·"); CROSS.add((e.strip(), o.strip()))
+            continue
+        if sec.startswith("两半一致"):
+            m = re.match(r"^\s*([-+\d.]+)\s+(\S+)\s+(\S+)\s+([LSXG])\s+([ABT])", s)
+            if m:
+                AGREE.append((float(m.group(1)), m.group(2), m.group(4), m.group(5)))
+            continue
+        m = re.match(r"^(\S+)\s+(\S+)\s+([LSXG])\s+([ABT])\s+(\d+)\s+([-+\d.]+)\s+([-+\d.]+)\s+(\S+)\s*(.*)$", s)
+        if m:
+            REG.add(m.group(1))
+            NUM.add(m.group(1))
+            ROWS.setdefault(m.group(1), []).append(
+                (m.group(3), m.group(4), int(m.group(5)), float(m.group(6)), float(m.group(7)),
+                 m.group(8), m.group(9)))
+            continue
+        m = re.match(r"^(\S+)\s+(\S+)\s+([LSXG])\s+([ABT])\s+(\d+)\s+\S+\s+\S+\s+(\S+)\s*(.*)$", s)
+        if m:   # 无数字行（样本不足／无变异）也要登记：否则该类条目被误判成「没进打分器」
+            REG.add(m.group(1))
+            ROWS.setdefault(m.group(1), []).append(
+                (m.group(3), m.group(4), int(m.group(5)), None, None, m.group(6), m.group(7)))
+    return NUM, AGREE, CROSS, ROWS, REG
+
+
+def mstat(eid, NUM, AGREE, CROSS, ROWS, REG):
+    """机器状态：ok=跨源×跨半 / half=仅两半 / flat=已测无信号 / stuck=测不动 / none=未进打分器。"""
+    a = [x for x in AGREE if x[1] == eid]
+    if a and any((eid, x[2]) in CROSS for x in a):
+        top = max(a)
+        return "ok", f"跨源复现（{top[2]}·{top[3]}）最强半 {top[0]:+.2f}"
+    if a:
+        top = max(a)
+        bad = [r for r in ROWS.get(eid, []) if r[5] != "OK"]
+        extra = "；最强出口不健康" if bad else ""
+        if top[2] == "G":
+            extra += "；G 是代理出口（不是靶域）"
+        return "half", f"两半一致（{top[2]}·{top[3]}）最强半 {top[0]:+.2f}{extra}"
+    if eid in NUM:
+        return "flat", "已测、无信号（全平）"
+    if eid in REG:
+        return "stuck", "测不动（结局/预测子无变异，或 n 不足）"
+    return "none", "未进打分器（未注册／已列「跳过」）"
 
 
 def main():
@@ -304,21 +366,75 @@ def main():
         L.append(f"| {a} | {n} | {c} | {d} | {cnt} |")
     L.append("")
 
-    stat_icon = {"ok": "✅已测", "half": "◐已测未过线", "wait": "⬜待测"}
-    L.append("## 一 · 条目清单（每条 = 条件+方向+机制+边界+出处；强度留空待测）\n")
+    NUM, AGREE, CROSS, ROWS, REG = load_scores(here)
+    # 册子自愈：打分器测过、册子没登记的编号（口径变体）→ 由本体克隆补登，避免「测了却没底账」
+    _base = {e["id"]: e for e in E}
+    _have = set(_base)
+    _added = 0
+    for sid in sorted(REG):
+        if sid in _have:
+            continue
+        stem = sid.rstrip("xmy")
+        b = dict(_base[stem]) if stem in _base else {
+            "id": sid, "axis": "?", "name": sid, "cond": "（未登记）", "dir": "（未登记）",
+            "mech": "", "bnd": "", "src": "（未登记）", "status": "wait", "res": ""}
+        b.update(id=sid, auto=True,
+                 name=b["name"] + f"〔口径变体 {sid[len(stem):]}〕",
+                 src=(b.get("src") or "") + "（自动补登）")
+        E.append(b); _added += 1
+    MICON = {"ok": "★★跨源", "half": "★两半", "flat": "▫无信号", "stuck": "⬜测不动", "none": "❓未跑"}
+    L.append("## 一 · 条目清单（状态栏＝**机器写入**，来自 `score-splithalf.txt`；手写字段降级为备注）\n")
+    if _added:
+        L.append(f"> 另有 **{_added} 条口径变体**由打分器自动补登（编号带 `x`/`m`/`y` 后缀），"
+                 f"已计入下表与统计。\n")
+    drift, lag = [], []
+
+    def resolve(eid):
+        """本体编号有时只以变体形式入册（如 AX01-07 只有 AX01-07x 被注册）——认领变体，别误报「没测」。"""
+        if eid in REG:
+            return eid, ""
+        for suf in ("x", "m", "y"):
+            if eid + suf in REG:
+                return eid + suf, f"（本体按变体 {suf} 计）"
+        return eid, ""
+
     for a, n, c, d in AXES:
         L.append(f"### {a} {n}\n")
-        L.append("| 编号 | 条目 | 条件（可算字段） | 方向 | 机制 | 边界 | 出处 | 状态/已有结果 |")
+        L.append("| 编号 | 条目 | 条件（可算字段） | 方向 | 机制 | 边界 | 出处 | 状态（机器） |")
         L.append("|---|---|---|---|---|---|---|---|")
         for e in [x for x in E if x["axis"] == a]:
-            res = e["res"].replace("|", "/") if e["res"] else "—"
-            L.append(f"| {e['id']} | {e['name']} | {e['cond']} | {e['dir']} | {e['mech']} | {e['bnd']} | {e['src']} | {stat_icon[e['status']]}：{res} |")
+            rid, rnote = resolve(e["id"])
+            ms, mres = mstat(rid, NUM, AGREE, CROSS, ROWS, REG)
+            hand = e["res"].replace("|", "/") if e["res"] else ""
+            if e.get("auto"):
+                pass
+            elif e["status"] in ("ok", "half") and ms in ("flat", "none", "stuck"):
+                drift.append(f"| {e['id']} | {e['status']} | {ms} | 旧结果（已换口径）→ 现行口径全平／测不到 |")
+            elif e["status"] in ("ok", "half") and ms != e["status"]:
+                lag.append(f"{e['id']}({e['status']}→{ms})")
+            elif e["status"] == "wait" and ms in ("ok", "half", "flat"):
+                lag.append(f"{e['id']}(wait→{ms})")
+            note = f" ｜备注（手写）：{hand}" if hand else ""
+            L.append(f"| {e['id']} | {e['name']} | {e['cond']} | {e['dir']} | {e['mech']} | "
+                     f"{e['bnd']} | {e['src']} | {MICON[ms]}：{mres}{rnote}{note} |")
         L.append("")
 
-    ok = sum(1 for e in E if e["status"] == "ok")
-    half = sum(1 for e in E if e["status"] == "half")
-    wait = sum(1 for e in E if e["status"] == "wait")
-    L.append(f"**状态统计**：✅已测有结果 {ok} 条 ｜ ◐已测未过线 {half} 条 ｜ ⬜待测 {wait} 条\n")
+    cnts = {}
+    for e in E:
+        k = mstat(e["id"], NUM, AGREE, CROSS, ROWS, REG)[0]
+        cnts[k] = cnts.get(k, 0) + 1
+    L.append("**状态统计（机器）**：" + " ｜ ".join(f"{MICON[k]} {cnts.get(k, 0)} 条"
+                                               for k in ("ok", "half", "flat", "stuck", "none")) + "\n")
+    L.append("> 状态以打分器为准。手写状态只当历史备注，**漂移本身就是体检结果**。\n")
+    L.append("**A 类：手写有结果、当前口径测不出来**——旧数字多来自别的口径／别的出口，"
+             "**别拿旧口径的数字当现行证据**：\n")
+    L.append("| 编号 | 手写 | 机器 | 说明 |")
+    L.append("|---|---|---|---|")
+    L += (drift if drift else ["| — | — | — | 无 |"])
+    L.append("")
+    L.append(f"**B 类（无害）手写滞后**——实测已有数、手写没跟上，共 **{len(lag)} 条**：" +
+             ("  ".join(lag) if lag else "无"))
+    L.append("")
 
     L.append("## 二 · 未蒸清单（登记在册，不偷丢）\n")
     L.append("| 类别 | 为什么没蒸 | 下一步 |")
@@ -338,7 +454,9 @@ def main():
     with open(os.path.join(here, "entry-list.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(L))
 
-    print(f"OK 条目 {len(E)} 条 / {len(AXES)} 轴 ｜ 已测 {ok} ｜ 未过线 {half} ｜ 待测 {wait}")
+    print(f"OK 条目 {len(E)} 条 / {len(AXES)} 轴 ｜ 机器状态：" +
+          " ".join(f"{k}={cnts.get(k, 0)}" for k in ("ok", "half", "flat", "stuck", "none")))
+    print(f"手写 vs 机器 漂移 {len(drift)} 条（手写只当备注，不再当状态）")
     print(f"→ {here}/entry-list.md")
     print(f"→ {here}/entries.json")
 
