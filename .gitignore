@@ -9,6 +9,10 @@ backup_old_drafts/
 raw/
 archive/
 
+# 前瞻账本：内容＝当事人私事（工作去留/私账/寻物），只公开装置不公开账目
+ledger*.jsonl
+ledger*.jsonl.bak*
+
 # 凭据
 .env
 tokens.env
