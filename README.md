@@ -123,14 +123,29 @@ results/           条目清单 + 首批验证结果（人读 .md / 机读 .json
 
 流水线假设案例库为 SQLite，且含以下结构（自建）：
 
-- `cases` —— 四柱、十神（干支 8 字 **＋地支藏干**；注意：**日干被计入比肩**）、通根、合冲会刑、宫位、大运
+- `cases` —— 四柱、十神（干支 8 字 **＋地支藏干**）、通根、合冲会刑、宫位、大运
+
+> ⚠️ **十神口径（2026-10-07 修根）**：日主是参照点，**不该给自己安十神**。
+> 早先版本把日干算成比肩（比肩组 0 → 587），已修为 `ruler_ver=2`：
+> 正确读列是 `shishen_quan` / `shishen_tiangan`；旧列 `shishen_config` 只作历史留档，**禁用于新分析**。
 - `case_outcomes` —— 分域结局（域 × 吉凶 × 等级）
 
 ```bash
 python3 pipeline/build_entry_list.py    # 四源 → 条目清单（entry-list.md + entries.json）
 python3 pipeline/score_entries.py       # 上机打分（按轴归组 + 分半 + 预注册线）
 python3 pipeline/refine_piancai.py      # 对幸存条目做切细实验
+
+# 自审装置（方法的一部分，同样公开）
+python3 pipeline/pred_power.py table                    # 预测力功效表：猜对几条才算本事
+python3 pipeline/pred_power.py check --n 2 --k 2 --p0 0.5
+python3 pipeline/self_audit.py --ledger list            # 前瞻账本（账目文件是当事人私事，不入库）
+python3 pipeline/ledger_due_nag.py                      # 到期催账：没事静默，到期才出声
 ```
+
+> 📌 **预测力课题（新增）**：解释力已在库内封顶 🥈B「库内最强（未经盲测）」；
+> 想进 🏅A「敢说」只有一条路——**前瞻盲测命中 ≥2 次**。详见
+> [`docs/prediction-power.md`](docs/prediction-power.md)。
+> 一句要紧的实话：**命中 ≥2 只是入场券**（2/2 全中、基线 50% ⇒ p = 0.25），不是「已证明」。
 
 输出默认落在脚本同级目录，请按自己的库路径调整连接串。
 
