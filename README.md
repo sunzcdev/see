@@ -107,6 +107,17 @@
 
 详见 [`docs/entry-registry.md`](docs/entry-registry.md)、[`docs/entry-list.md`](docs/entry-list.md)。
 
+**第八轮（机制标签加「旺衰结构层」）**：机制标签下有 470 例（20.2%）一条规则都不中。体检后发现：
+共性**不是「缺某族机制」**，而是**各神俱在而皆轻**（五轴中位数 2、均值 2.4–2.5，无一轴够到阈值）——
+属**阈值分档的产物**。根因是那 18 条机制的阈值走「选择性对齐」（为与老尺可比，阈值被抬到 4 倍），
+把新尺的分辨率浪费掉了。⇒ **另起一层「旺衰结构」标签**（偏重≥q80／缺位=0／十神均平），
+阈值由**库自身分位**定、不追求与老尺可比（它服务检索，不服务回归）。覆盖率 1852 → **2322（100%）**，
+**既有 1852 例主标签一个字没动**（可复跑闸门 `pipeline/verify_mech_v3.py` 两关全过）。
+同轮**撤回**一处旧判断：「470 例缺『比劫重身旺』族」——那 252 例比劫≥3 里，
+「真·无财∧无官杀∧无食伤」**= 0 例**，该结构不构成一族。
+
+详见 [`docs/mechanism-tag-rules.md`](docs/mechanism-tag-rules.md)。
+
 ---
 
 ## 仓库结构
@@ -145,6 +156,8 @@ python3 pipeline/build_entry_list.py    # 四源 → 条目清单（entry-list.m
 python3 pipeline/score_entries.py       # 上机打分（按轴归组 + 分半 + 预注册线）
 python3 pipeline/refine_piancai.py      # 对幸存条目做切细实验
 python3 pipeline/verify_entries.py      # 条目册三道闸：判定等价 / 条件同源 / 无手写残留
+python3 pipeline/analyze_unlabeled.py   # 机制标签体检：无标签池结构（只读，不写库）
+python3 pipeline/verify_mech_v3.py      # 机制标签闸门：机制层等价 / 主标签不变式
 
 # 自审装置（方法的一部分，同样公开）
 python3 pipeline/pred_power.py table                    # 预测力功效表：猜对几条才算本事

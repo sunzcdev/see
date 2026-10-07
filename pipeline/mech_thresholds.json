@@ -130,5 +130,50 @@
    "new_rate": 0.4617,
    "delta": -0.0482
   }
- ]
+ ],
+
+ "structural": {
+  "note": "旺衰结构标签层（v3 新增）。**不走「选择性对齐」**——那一层的目的是与老尺可比（回归用），本层的目的是给检索用：判定「这个盘哪一轴偏重／哪一轴缺位」。阈值由**库自身分位**定，不拍数。",
+  "why": "体检（scripts/analyze_unlabeled.py）：18 条机制规则下 470 例（20.2%）无标签，共性不是「缺某族机制」，而是**各神俱在而皆轻**（比劫/财/官杀/印/食伤 五轴中位数 2、均值 2.40–2.54，无一轴过对齐阈值）⇒ 属阈值分档产物，非机制缺口。",
+  "focus_ge": 4,
+  "absent_eq": 0,
+  "focus_ge_evidence": {
+   "q80_all_axes": 4,
+   "coverage_each_axis_pct": [
+    21.4,
+    21.1,
+    20.7,
+    19.3,
+    22.9
+   ]
+  },
+  "absent_evidence": {
+   "coverage_each_axis_pct": [
+    5.2,
+    5.1,
+    5.6,
+    5.3
+   ]
+  },
+  "tags": {
+   "比劫偏重": "比肩+劫财 >= focus_ge",
+   "财偏重": "正财+偏财 >= focus_ge",
+   "官杀偏重": "正官+七杀 >= focus_ge",
+   "印偏重": "正印+偏印 >= focus_ge",
+   "食伤偏重": "食神+伤官 >= focus_ge",
+   "财缺": "正财+偏财 == absent_eq",
+   "官杀缺": "正官+七杀 == absent_eq",
+   "印缺": "正印+偏印 == absent_eq",
+   "食伤缺": "食神+伤官 == absent_eq",
+   "十神均平": "以上皆不中（五轴俱不过重、无一轴缺席）——如实标记「无过重之神」，**不代表有机制**"
+  },
+  "caliber": "阈值随十神尺走（只在 shishen_quan/正确尺下启用）；老尺回归（MECH_SS_COL=shishen_config）不启用本层",
+  "enforced_at": "2026-10-08",
+  "n_cases": 2322,
+  "coverage": {
+   "with_structural": 2322,
+   "without_structural": 1852,
+   "structural_only": 470
+  }
+ }
 }
