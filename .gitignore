@@ -1,0 +1,28 @@
+# 案例库与隐私：绝不入库
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+*.sqlite3
+*.bak-*
+backup_old_drafts/
+raw/
+archive/
+
+# 凭据
+.env
+tokens.env
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 系统
+.DS_Store
+*.swp
+.idea/
+.vscode/
