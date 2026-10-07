@@ -49,11 +49,12 @@ print("【财+官 → 功名事业】")
 contrast("财≥1∧官≥1", '功名事业', lambda f: cnt(f, '正财', '偏财') >= 1 and cnt(f, '正官', '七杀') >= 1)
 contrast("财≥1∧正官≥1", '功名事业', lambda f: cnt(f, '正财', '偏财') >= 1 and cnt(f, '正官') >= 1)
 
-# 比肩 → 财（真比肩 = 库值−1）
-print("【比肩 → 财（已校正含日主）】")
-contrast("真比肩≥1", '财', lambda f: f['ss'].get('比肩', 0) - 1 >= 1)
-contrast("真比肩≥2（成势）", '财', lambda f: f['ss'].get('比肩', 0) - 1 >= 2)
-contrast("真比肩≥3", '财', lambda f: f['ss'].get('比肩', 0) - 1 >= 3)
+# 比肩 → 财（走 cnt()，已按 ruler_ver 自动校正：ver=2 库值本身已排除日主）
+# 注：2026-10-07 前此处硬编码「−1」，修根后若仍减 1 会**双重扣减**。
+print("【比肩 → 财（真比肩＝不含日主）】")
+contrast("真比肩≥1", '财', lambda f: cnt(f, '比肩') >= 1)
+contrast("真比肩≥2（成势）", '财', lambda f: cnt(f, '比肩') >= 2)
+contrast("真比肩≥3", '财', lambda f: cnt(f, '比肩') >= 3)
 contrast("偏财≥1（对照，应显著）", '财', lambda f: cnt(f, '偏财') >= 1)
 
 # 位置条：偏财落年月 vs 落日时

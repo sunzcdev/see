@@ -86,6 +86,17 @@
 
 详见 [`docs/outlet-inventory.md`](docs/outlet-inventory.md)、[`docs/entry-battery-run4.md`](docs/entry-battery-run4.md)、[`results/verification-4-score.txt`](results/verification-4-score.txt)。
 
+**第五轮（修根：比肩）**：`build_ruler8.py` 第 79 行把**日干自己**也拿去数十神，而
+`ss(日干, 日干)` 恒等于比肩 ⇒ 全库每例比肩 ≥1，「比肩=0 / 比劫=0」**永不成立**，
+整条比劫轴白跑且**毫无报错**。修根（`fix_shishen_root.py`，`ruler_ver=2`，日主排除，
+旧值留档 `bijian_v1`）后比肩 0 组 **0 → 587（25.3%）**，落进其余九神的正常区间；
+不变式核对「新 = 旧 − 1」差异 **0 例**，另抽一造**手算逐格相符**。
+连带揪出三处：**下游兜底没撤导致的「双重扣减」**、女命脚本含日主（全库 2322 例身强指标恒高 0.5）、
+断命脚本**按字面**排日干（10.2% 的造少算一格）。
+**教训：修根后必须回收全部兜底补丁；兜底要写成条件式，别写成常数——常数会在修根那天变成新 bug。**
+
+详见 [`docs/bijian-root-fix.md`](docs/bijian-root-fix.md)。
+
 ---
 
 ## 仓库结构

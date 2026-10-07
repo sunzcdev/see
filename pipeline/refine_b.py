@@ -93,8 +93,11 @@ show("AX01-06 正官 → 功名", [
 ], '功名事业')
 
 # ── AX01-05 比肩 → 财 ─────────────────────────────────────────
-# 口径更正：库内 shishen_quan 把**日干本身**计为比肩 ⇒ 真比肩数 = 库值 − 1
-def rb(f): return f['ss'].get('比肩', 0) - 1
+# 口径：2026-10-07 已修根（fix_shishen_root.py，ruler_ver=2，日主排除）。
+# 对旧库（ver<2）仍兜底减 1；对 ver=2 直接读库值。
+def rb(f):
+    v = f['ss'].get('比肩', 0)
+    return max(0, v - 1) if f.get('ver', 1) < 2 else v
 def bp(f, where):
     return len([p for p in (f['tg'].get('比肩') or []) if p in where])
 

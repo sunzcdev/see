@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+⛔ 已废弃（2026-10-07）—— 本脚本含**产线 bug**，勿再运行。
+   第 79 行 `for g in gs` 把四柱天干全拿去数，其中 gs[2] 是**日干自己**，
+   而 ss(rz, rz) 恒等于「比肩」⇒ 全库每例比肩 ≥1、「比肩/比劫=0」条件不可测。
+   正确版本见 `fix_shishen_root.py`（日主排除，ruler_ver=2，另存 bijian_v1 证据）。
+   若确需重跑本脚本，它会写回 v1 口径并覆盖 shishen_quan —— 请先备份。
+
 干支双尺落地：给 case_features 增补 8 字口径十神字段（不覆盖旧字段）
 旧字段 shishen_config 保留 = 「表」（天干）；新增 = 「里」（含地支根）
 增量、可回滚；旧字段一律不动。
 """
 import sqlite3, json, sys
+
+print("⛔ build_ruler8.py 已废弃：它把日干算作比肩（ruler_ver=1）。")
+print("   请改用 fix_shishen_root.py（日主排除，ruler_ver=2）。")
+if "--force-v1" not in sys.argv:
+    sys.exit(1)
 
 DB = "/home/ubuntu/projects/jinxiang-kucun/jinxiang.db"
 WX = {"甲": "木", "乙": "木", "丙": "火", "丁": "火", "戊": "土",

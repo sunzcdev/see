@@ -55,7 +55,8 @@ def load():
     c = sqlite3.connect(DB)
     rows = c.execute("""select case_id, yueling, year_pillar, month_pillar, day_pillar, hour_pillar,
                                gender_fixed as gender, shishen_quan, shishen_config, tonggen,
-                               he_list, chong_list, hui_list, xing_list, verdict_domains
+                               he_list, chong_list, hui_list, xing_list, verdict_domains,
+                               shishen_ruler_ver
                         from case_features""").fetchall()
     lvB = dict(c.execute("select case_id, level from case_outcomes").fetchall())
     polB = dict(c.execute("select case_id, verdict from case_outcomes").fetchall())
@@ -64,7 +65,7 @@ def load():
     for _cid, _dom, _s in c.execute("select case_id, dom, sev from case_severity"):
         sevT.setdefault(_cid, {})[_dom] = _s
     F = {}
-    for (cid, yl, py, pm, pd, ph, g, ssq, ssc, tg, he, ch, hui, xing, vdom) in rows:
+    for (cid, yl, py, pm, pd, ph, g, ssq, ssc, tg, he, ch, hui, xing, vdom, sver) in rows:
         pil = [py, pm, pd, ph]
         j = lambda s: json.loads(s) if s else {}
         ss, sscd, tgd = j(ssq), j(ssc), j(tg)
@@ -83,16 +84,21 @@ def load():
             else: B[k] = (B[k][0] or p, B[k][1] if B[k][1] is not None else l)
         F[cid] = dict(cid=cid, yl=yl, pil=pil, day=pd, g=g, ss=ss, ssc=sscd, tg=tgd, wx=wx,
                       he=jl(he), ch=jl(ch), hui=jl(hui), xing=jl(xing), A=A, B=B,
-                      sev=sevT.get(cid, {}))
+                      sev=sevT.get(cid, {}), ver=(sver or 1))
     return F
 
 def cnt(f, *n):
-    """十神计数。**比肩要减 1**：库口径把日干自己算进了比肩，
-    故比肩恒 ≥1、「比肩+劫财==0」这类条件永远不成立（曾害 AX09-03 整条无变异）。"""
+    """十神计数。
+    ruler_ver=1（旧）：build_ruler8.py 把**日干自己**算作比肩 ⇒ 比肩恒 ≥1，
+        条件「比肩=0」「比劫=0」不可测。此处临时 −1 兜底。
+    ruler_ver=2（2026-10-07 修根后）：日主已排除，**直接读库值**，不再减 1。
+    修根脚本：`fix_shishen_root.py`；证据列 `bijian_v1`（旧比肩数）。"""
     s = 0
     for x in n:
         v = f['ss'].get(x, 0)
-        s += max(0, v - 1) if x == '比肩' else v
+        if x == '比肩' and f.get('ver', 1) < 2:
+            v = max(0, v - 1)
+        s += v
     return s
 def has(f, *n): return cnt(f, *n) > 0
 def tgpos(f, *n):
@@ -245,7 +251,10 @@ def run():
     nf = sum(1 for f in F.values() if fem(f))
     add(f"性别：**用修复列 gender_fixed**（旧 gender 列已判病＝把每批第一例性别盖全批；"
         f"旧 vs 新不一致 {34.8}%）｜坤命池 {nf} 例（旧脏列声称 620 例）")
-    add("十神计数：**比肩减 1**（库口径把日干自己算进比肩 ⇒ 比肩恒≥1；不减则「比劫==0」类条件永不成立）")
+    add("十神计数：**比肩不再手工减 1**。旧库口径（ruler_ver=1）把日干自己算进比肩，"
+        "故当时须 −1 兜底；2026-10-07 已修根（`fix_shishen_root.py`，ver=2，"
+        "节点内日主排除，旧值留档 `bijian_v1`）⇒ 现在直接读库值。"
+        "脚本按 `shishen_ruler_ver` 自动判断，故新旧库都能跑。")
     add(f"预注册：校正单元=轴 K=11 ⇒ z_crit={ZC} ｜ 一致判据：两半同号且都 |z|≥1.5 ｜ 两源同号才算复现")
     add("出口：L=等级(序数,高=好) ｜ X=域凶率(二值,凶=1) ｜ G=全局凶率(该例任意域见凶)")
     add("     S=域内严重度(序数,高=更重；只在无等级出口的域启用：刑灾官非/六亲/子女)")
