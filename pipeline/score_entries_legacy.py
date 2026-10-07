@@ -111,14 +111,68 @@ def dayzhi(f): return f['day'][1] if f['day'] and len(f['day']) > 1 else ''
 def hit(lst, z): return 1 if any(z in s for s in lst) else 0
 def fem(f): return 1 if f['g'] in ('坤', '女', 'F') else 0
 
-# ── 条件登记表已外置 ────────────────────────────────────────────────
-# 2026-10-07（任务11／自审 H5）：条件的**唯一定义处**改成 `entries_spec.py`。
-# 那里一份规格同时生成「判定函数」与「中文条件文字」，条目册只渲染、不准手写。
-# 本文件不再自带任何条件；改条件请改 entries_spec.SPEC。
-from entries_spec import registry
-P = registry()
+P = {}
+def reg(i, dom, sign, fn): P[i] = (dom, sign, fn)
 
-# （42 条登记表见 entries_spec.SPEC — 条件的唯一定义处）
+# AX-01 十神单字轴
+reg("AX01-01","财",+1,lambda f: f['ss'].get('偏财',0))
+reg("AX01-02","财",+1,lambda f: f['ss'].get('正财',0))
+reg("AX01-03","财",-1,lambda f: 1 if f['ssc'].get('劫财',0)>0 else 0)
+reg("AX01-04","财",-1,lambda f: f['ss'].get('劫财',0))
+reg("AX01-05","财",-1,lambda f: cnt(f,'比肩'))
+reg("AX01-06","功名事业",+1,lambda f: f['ss'].get('正官',0))
+reg("AX01-07x","刑灾官非",+1,lambda f: f['ss'].get('七杀',0))
+reg("AX01-08","婚姻",-1,lambda f: (f['ss'].get('伤官',0) if fem(f) else None))
+reg("AX01-09","寿元健康",+1,lambda f: f['ss'].get('食神',0))
+reg("AX01-10","寿元健康",-1,lambda f: 1 if (f['ss'].get('偏印',0)>0 and f['ss'].get('食神',0)>0) else 0)
+# AX-02 格局成破轴
+reg("AX02-01x","刑灾官非",-1,lambda f: 1 if (f['ss'].get('正官',0)>0 and cnt(f,'正印','偏印')>0) else 0)
+reg("AX02-02","功名事业",+1,lambda f: 1 if (f['ss'].get('七杀',0)>0 and cnt(f,'正印','偏印')>0) else 0)
+reg("AX02-03x","刑灾官非",+1,lambda f: 1 if (f['ss'].get('伤官',0)>0 and f['ss'].get('正官',0)>0) else 0)
+reg("AX02-03m","婚姻",-1,lambda f: (1 if (f['ss'].get('伤官',0)>0 and f['ss'].get('正官',0)>0) else 0) if fem(f) else None)
+reg("AX02-04","财",-1,lambda f: 1 if (cnt(f,'比肩','劫财')>=2 and cnt(f,'正财','偏财')>0) else 0)
+reg("AX02-05x","刑灾官非",-1,lambda f: 1 if (f['ss'].get('食神',0)>0 and f['ss'].get('七杀',0)>0) else 0)
+reg("AX02-06","功名事业",+1,lambda f: 1 if (cnt(f,'正财','偏财')>0 and f['ss'].get('正官',0)>0) else 0)
+reg("AX02-07","婚姻",-1,lambda f: 1 if (f['ss'].get('正官',0)>0 and f['ss'].get('七杀',0)>0) else 0)
+reg("AX02-08","功名事业",-1,lambda f: 1 if (f['ss'].get('七杀',0)>0 and cnt(f,'食神','伤官')>=2 and cnt(f,'正印','偏印')==0) else 0)
+# AX-03
+reg("AX03-01x","刑灾官非",+1,lambda f: (f['ss'].get('七杀',0) if has(f,'七杀') else None))
+reg("AX03-02","功名事业",-1,lambda f: (cnt(f,'正官','七杀') if 1<=cnt(f,'正官','七杀')<=4 else None))
+reg("AX03-03x","刑灾官非",+1,lambda f: 1 if (cnt(f,'比肩','劫财')==0 and cnt(f,'正印','偏印')==0) else 0)
+reg("AX03-04","财",-1,lambda f: 1 if (cnt(f,'正财','偏财')>=3 and cnt(f,'比肩','劫财')==0 and cnt(f,'正印','偏印')==0) else 0)
+# AX-04
+reg("AX04-01","功名事业",+1,lambda f: 1 if (tgpos(f,'正官','七杀') & {'年','月'}) else 0)
+reg("AX04-02x","刑灾官非",+1,lambda f: 1 if (tgpos(f,'七杀') & {'日','时'}) else 0)
+reg("AX04-03","财",+1,lambda f: 1 if (tgpos(f,'正财','偏财') & {'年','月'}) else 0)
+# 2026-10-07 改键：原注册在「六亲」（语料仅 135 例、130 例为丧父母，出口天生单极）；
+# 库内有独立的「子女」域（60 例，吉凶 22/36 ⇒ 二值出口健康）——域键写错＝白卡死。
+reg("AX04-04x","子女",-1,lambda f: (1 if (tgpos(f,'伤官') & {'时'}) else 0) if fem(f) else None)
+reg("AX04-04y","子女",-1,lambda f: 1 if (tgpos(f,'伤官') & {'时'}) else 0)   # 声明变体：不限性别
+# AX-05
+reg("AX05-01","婚姻",-1,lambda f: hit(f['ch'], dayzhi(f)))
+reg("AX05-02","婚姻",-1,lambda f: hit(f['he'], dayzhi(f)))
+reg("AX05-03","婚姻",-1,lambda f: hit(f['xing'], dayzhi(f)))
+# AX-06
+reg("AX06-01","寿元健康",-1,lambda f: 1 if any(f['wx'].get(w,0)==0 for w in '木火土金水') else 0)
+reg("AX06-02x","刑灾官非",+1,lambda f: 1 if any(f['wx'].get(w,0)>=4 for w in '木火土金水') else 0)
+# AX-07
+reg("AX07-01","功名事业",+1,lambda f: 1 if any(p and len(p)>1 and p[1] in '辰戌丑未' for p in f['pil']) else 0)
+# AX-08
+reg("AX08-01","功名事业",-1,lambda f: (1 if (f['yl'] in '亥子丑' and f['day'][0] in '丙丁' and f['wx'].get('火',0)==0) else 0) if f['yl'] else None)
+reg("AX08-02","功名事业",-1,lambda f: (1 if (f['yl'] in '巳午未' and f['day'][0] in '壬癸' and f['wx'].get('水',0)==0) else 0) if f['yl'] else None)
+# AX-09 女命
+reg("AX09-01","婚姻",-1,lambda f: (1 if (cnt(f,'正官','七杀')>0 and not (tgpos(f,'正官','七杀') & {'日','时'})) else 0) if fem(f) else None)
+reg("AX09-02","婚姻",-1,lambda f: (1 if (f['ss'].get('正官',0)>0 and f['ss'].get('七杀',0)>0) else 0) if fem(f) else None)
+reg("AX09-03","婚姻",-1,lambda f: (1 if (cnt(f,'比肩','劫财')==0 and cnt(f,'正印','偏印')==0) else 0) if fem(f) else None)
+reg("AX09-05","婚姻",-1,lambda f: (1 if cnt(f,'正官','七杀')==0 else 0) if fem(f) else None)
+reg("AX09-04","婚姻",-1,lambda f: (1 if (cnt(f,'伤官')>0 and cnt(f,'正官')>0) else 0) if fem(f) else None)
+# AX-11 财富载体
+def carr(f):
+    if cnt(f,'正官','七杀')>0: return 2
+    if cnt(f,'食神','伤官')>0: return 1
+    if cnt(f,'正财','偏财')>0: return 0
+    return None
+reg("AX11-01","财",+1,carr)
 
 SKIP = {
  "AX03-05":"口径对比实验（另行，三口径并跑）",
@@ -229,8 +283,7 @@ def run():
     add("-"*80)
     rows = []
     STUCK, OKROWS = {}, set()
-    for eid in sorted(P):        # 按编号排序：输出顺序确定（原为登记顺序，含 AX09-05/04 的偶然倒序）
-        dom, sign, fn = P[eid]
+    for eid, (dom, sign, fn) in P.items():
         ol = (("L",) if dom in DOMHAS_L else (("S",) if dom in DOMHAS_S else ())) + ("X", "G")
         for outc in ol:
             sgn = sign if outc == "L" else -sign

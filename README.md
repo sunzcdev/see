@@ -97,13 +97,23 @@
 
 详见 [`docs/bijian-root-fix.md`](docs/bijian-root-fix.md)。
 
+**第七轮（条目册自动化：消掉两份真相）**：自审查出真伤「条目条件 ≠ 实测判据」——
+同一个条件存了两份：打分器里的**判定函数**（真值）和条目册里**手写的 cond 文字**（复制品）。
+手写「偏财≥1」，打分器却按**原始计数梯度**测。修法是消掉一份：条件写成一个 **DSL 规格**（`pipeline/entries_spec.py`），
+`build()` 出判定、`render()` 出中文 ⇒ **文字与判定同源，物理上不可能不一致**；`status/res/grade` 由打分器机器写入，
+手写降级为冻结备注（漂移表留作体检）。纪律落成**可复跑三闸** `pipeline/verify_entries.py`：
+判定等价（全库 **97524 个判定值 0 不一致**）、条件同源（0 不符）、无手写残留。
+**闸门当场抓出真 bug**（`carr` 原子把列表参数当变参传，2322 例全错）——没这道闸，它会静默进产线。
+
+详见 [`docs/entry-registry.md`](docs/entry-registry.md)、[`docs/entry-list.md`](docs/entry-list.md)。
+
 ---
 
 ## 仓库结构
 
 ```
 METHOD.md          方法论正文（五格/四档/三把刀/四源/实操坑）
-docs/              方法附录：出口修复、换源、格局口径、条目清单批次实录
+docs/              方法附录：出口修复、换源、格局口径、条目清单批次实录、条目册装置
 pipeline/          验证流水线（Python，读 SQLite 案例库）
 results/           条目清单 + 首批验证结果（人读 .md / 机读 .json 各一份）
 ```
@@ -134,6 +144,7 @@ results/           条目清单 + 首批验证结果（人读 .md / 机读 .json
 python3 pipeline/build_entry_list.py    # 四源 → 条目清单（entry-list.md + entries.json）
 python3 pipeline/score_entries.py       # 上机打分（按轴归组 + 分半 + 预注册线）
 python3 pipeline/refine_piancai.py      # 对幸存条目做切细实验
+python3 pipeline/verify_entries.py      # 条目册三道闸：判定等价 / 条件同源 / 无手写残留
 
 # 自审装置（方法的一部分，同样公开）
 python3 pipeline/pred_power.py table                    # 预测力功效表：猜对几条才算本事
