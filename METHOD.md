@@ -160,6 +160,8 @@ author: see
 
 ## 关联资产
 
+**公开仓库：** https://github.com/sunzcdev/see （本地 `~/projects/see`；文字 CC BY-NC 4.0 / 代码 MIT；**案例库与凭据不进仓**，个人提法脱敏）。仓库＝方法正文 + 8 篇附录 + 脚本 + 两轮验证结果，按「读你自己的库」写法公开——脚本里不含库数据。
+
 - 世界观与证据纪律：`mingli-method-evidence-audit`（`references/cybernetics-blackbox.md`、`references/fourier-lens.md`）
 - 命理原生骨架：`bazi-duanming/references/first-principles.md`（九条支柱，已挂原文出处）
 - 库驱动检索：`mingli-library-duanming`、`jinxiang-data-platform`
