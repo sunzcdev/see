@@ -1,0 +1,134 @@
+{
+ "ver": 2,
+ "ruler": "shishen_quan",
+ "ruler_note": "全字含藏干、日主不计十神（ruler_ver=2）；替换老尺 shishen_config（只数天干、日主计入比肩）",
+ "method": "选择性对齐：对新尺逐阈值求命中率，取与老尺命中率最接近者",
+ "matched_at": "2026-10-07",
+ "n_cases": 2322,
+ "thresholds": {
+  "sha": {
+   "ge_1": 2
+  },
+  "guan": {
+   "ge_1": 2
+  },
+  "yin": {
+   "ge_1": 3,
+   "ge_2": 5,
+   "ge_3": 6
+  },
+  "shi": {
+   "ge_1": 3
+  },
+  "shang": {
+   "ge_1": 2
+  },
+  "cai": {
+   "ge_1": 3,
+   "ge_3": 6
+  },
+  "bi": {
+   "ge_3": 5,
+   "lt_2": 3
+  },
+  "shishang": {
+   "ge_1": 3
+  },
+  "guansha": {
+   "ge_1": 3
+  }
+ },
+ "audit_table": [
+  {
+   "pred": "sha >= 1",
+   "old_rate": 0.2984,
+   "new_thr": 2,
+   "new_rate": 0.3686,
+   "delta": 0.0702
+  },
+  {
+   "pred": "guan >= 1",
+   "old_rate": 0.2761,
+   "new_thr": 2,
+   "new_rate": 0.3389,
+   "delta": 0.0629
+  },
+  {
+   "pred": "yin >= 1",
+   "old_rate": 0.4655,
+   "new_thr": 3,
+   "new_rate": 0.4526,
+   "delta": -0.0129
+  },
+  {
+   "pred": "shi >= 1",
+   "old_rate": 0.2614,
+   "new_thr": 3,
+   "new_rate": 0.1417,
+   "delta": -0.1197
+  },
+  {
+   "pred": "shang >= 1",
+   "old_rate": 0.264,
+   "new_thr": 2,
+   "new_rate": 0.3471,
+   "delta": 0.0831
+  },
+  {
+   "pred": "cai >= 1",
+   "old_rate": 0.4694,
+   "new_thr": 3,
+   "new_rate": 0.4819,
+   "delta": 0.0125
+  },
+  {
+   "pred": "yin >= 2",
+   "old_rate": 0.0999,
+   "new_thr": 5,
+   "new_rate": 0.0504,
+   "delta": -0.0495
+  },
+  {
+   "pred": "yin >= 3",
+   "old_rate": 0.0082,
+   "new_thr": 6,
+   "new_rate": 0.009,
+   "delta": 0.0009
+  },
+  {
+   "pred": "cai >= 3",
+   "old_rate": 0.009,
+   "new_thr": 6,
+   "new_rate": 0.0134,
+   "delta": 0.0043
+  },
+  {
+   "pred": "bi >= 3",
+   "old_rate": 0.1029,
+   "new_thr": 5,
+   "new_rate": 0.0612,
+   "delta": -0.0418
+  },
+  {
+   "pred": "bi < 2",
+   "old_rate": 0.5146,
+   "new_thr": 3,
+   "new_rate": 0.5228,
+   "delta": 0.0082
+  },
+  {
+   "pred": "shishang >= 1",
+   "old_rate": 0.4686,
+   "new_thr": 3,
+   "new_rate": 0.497,
+   "delta": 0.0284
+  },
+  {
+   "pred": "guansha >= 1",
+   "old_rate": 0.5099,
+   "new_thr": 3,
+   "new_rate": 0.4617,
+   "delta": -0.0482
+  }
+ ]
+}

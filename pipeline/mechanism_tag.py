@@ -7,10 +7,18 @@
 功能：从 case_features 现有字段计算格局机制标签 → mech_primary/mech_aux
 规则：18 个自动规则（十神 + 五行 + 地支合冲）
 
-⚠ 十神口径（2026-10-07 自审）：本脚本**故意用「老尺」`shishen_config`（只数天干）**，因为下面 18 条规则的阈值都是在这把尺上标定的。
-  实测换到「全字口径含藏干」(`shishen_quan`) 会让 **99.6%（2313/2322）例的标签集合变化**（老尺口径下十神命中稀疏 ⇒ 规则大量静默不触发）。
-  ⇒ **换尺必须同时重标定阈值**，不许直接切。要切换请改 `SS_COL` 并先跑对照实验。
-  另注：老尺口径下本脚本只给 1234/2322 例打上主标签（1088 例空）——这是口径稀疏的必然结果，不是脚本坏了。
+★ 十神口径（2026-10-07 重标定，第二版）：
+  默认＝**全字含藏干、日主不计**（`shishen_quan`，ruler_ver=2）＋**重标定阈值**（`mech_thresholds.json`）。
+  为什么必须重标定：18 条规则的老阈值（「印≥3」…）标定在**病尺**`shishen_config`（只数天干 ∧ 日主计入比肩）上；
+  两尺十神密度差约 4 倍（老 0.3 个/十神、新 1.2–1.34）⇒ **照搬阈值必饱和**（人人命中＝标签无区分度）。
+  做法＝**按选择性对齐**：逐判据在新尺上选阈值，使命中率与老尺持平（见 `calibrate_mech.py`，附审计表）。
+  ⇒ 换尺只换坐标、不换「筛掉多少人」的信息量；下次再换尺只改 `mech_thresholds.json`，不动代码。
+  回归用：`MECH_SS_COL=shishen_config python3 scripts/mechanism_tag.py` 应复现老尺结果（覆盖 1868/2322）。
+  落列：`mech_primary` / `mech_aux`（现＝v2）＋ `mech_ver`；老尺结果留档在 `mech_primary_v1` / `mech_aux_v1`。
+  覆盖面：正确尺 1852/2322（79.8%）｜老尺 1868/2322（80.4%）—— 几乎相同 ⇒ **覆盖率不是换尺的理由**（见下条历史坑）。
+  ✖ 撤回（2026-10-07）：本文件曾写「老尺只覆盖 1234/2322，是病尺稀疏的必然结果」——**已证伪**。
+    根因＝库内那批标签是**旧版脚本（尚无「羊刃驾杀」规则）的产物、从未全量回填**；同一脚本重跑即 1868，差额 696 例全在「羊刃驾杀」。
+    ⇒ 教训：**「库 ≠ 代码」也是一种口径漂移**；凡覆盖率/分布数字必须标明「哪版脚本 + 哪把尺 + 跑于何时」。
 主标签：月令十神优先排序取前 1-2；从格/化气等人工标签永远最前
 幂等：重跑覆盖
 """
@@ -20,7 +28,26 @@ DB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '
 
 # 十神口径开关（见文件头 ⚠）。默认老尺：18 条规则的阈值按此标定，换尺须先重标定。
 # 'shishen_config' = 老尺（只数天干，日主计入比肩）｜'shishen_quan' = 全字口径含藏干（ruler_ver=2）
-SS_COL = os.environ.get('MECH_SS_COL', 'shishen_config')
+# 默认＝正确尺（全字含藏干、日主不计）＋重标定阈值；老尺仅用于回归复现
+SS_COL = os.environ.get('MECH_SS_COL', 'shishen_quan')
+
+# 重标定阈值（仅在全字口径下启用；老尺走原阈值＝行为完全不变）
+_TH = None
+if SS_COL == 'shishen_quan':
+    _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mech_thresholds.json')
+    if os.path.exists(_p):
+        _TH = json.load(open(_p, encoding='utf-8'))['thresholds']
+    else:
+        raise SystemExit(f'⛔ 全字口径需要重标定阈值，但找不到 {_p}；先跑 calibrate_mech.py')
+
+def _ge(v, var, old_thr):
+    """按老尺写法取阈值：全字口径用重标定值，老尺用原值（回归不变）"""
+    t = old_thr if _TH is None else _TH[var][f'ge_{old_thr}']
+    return v >= t
+
+def _lt(v, var, old_thr):
+    t = old_thr if _TH is None else _TH[var][f'lt_{old_thr}']
+    return v < t
 
 # 阳干帝旺位（羊刃）
 YANGREN = {'甲': '卯', '乙': '寅', '丙': '午', '丁': '巳', '戊': '午', '己': '巳', '庚': '酉', '辛': '申', '壬': '子', '癸': '亥'}
@@ -36,33 +63,33 @@ def calc_tags(shishen, zhis, rizhu, yueling):
     ss = {k: shishen.get(k, 0) for k in ['比肩','劫财','食神','伤官','正财','偏财','正官','七杀','正印','偏印']}
     sha = ss['七杀']; guan = ss['正官']; yin = ss['正印'] + ss['偏印']
     shi = ss['食神']; shang = ss['伤官']; cai = ss['正财'] + ss['偏财']
-    bi = ss['比肩'] + ss['劫财']
-    # 格局类
-    if sha >= 1 and yin >= 1: tags.append('杀印相生')
-    if guan >= 1 and yin >= 1: tags.append('官印相生')
-    if shi >= 1 and sha >= 1: tags.append('食神制杀')
-    if shang >= 1 and sha >= 1: tags.append('伤官制杀')
-    if shang >= 1 and cai >= 1: tags.append('伤官生财')
-    if shi >= 1 and cai >= 1: tags.append('食神生财')
-    if guan >= 1 and sha >= 1: tags.append('官杀混杂')
-    if yin >= 3: tags.append('印重身旺')
-    if cai >= 3 and bi < 2: tags.append('财多身弱')
-    if bi >= 3 and cai >= 1: tags.append('比劫夺财')
+    bi = ss['比肩'] + ss['劫财']; shishang = shi + shang
+    # 格局类（阈值经 _ge/_lt 走「当前尺」：全字口径＝重标定值，老尺＝原值）
+    if _ge(sha, 'sha', 1) and _ge(yin, 'yin', 1): tags.append('杀印相生')
+    if _ge(guan, 'guan', 1) and _ge(yin, 'yin', 1): tags.append('官印相生')
+    if _ge(shi, 'shi', 1) and _ge(sha, 'sha', 1): tags.append('食神制杀')
+    if _ge(shang, 'shang', 1) and _ge(sha, 'sha', 1): tags.append('伤官制杀')
+    if _ge(shang, 'shang', 1) and _ge(cai, 'cai', 1): tags.append('伤官生财')
+    if _ge(shi, 'shi', 1) and _ge(cai, 'cai', 1): tags.append('食神生财')
+    if _ge(guan, 'guan', 1) and _ge(sha, 'sha', 1): tags.append('官杀混杂')
+    if _ge(yin, 'yin', 3): tags.append('印重身旺')
+    if _ge(cai, 'cai', 3) and _lt(bi, 'bi', 2): tags.append('财多身弱')
+    if _ge(bi, 'bi', 3) and _ge(cai, 'cai', 1): tags.append('比劫夺财')
     # 羊刃
     yangren_zhi = YANGREN.get(rizhu[0] if rizhu else '')
     if yangren_zhi and yangren_zhi in zhis:
-        if sha >= 1: tags.append('羊刃驾杀')
+        if _ge(sha, 'sha', 1): tags.append('羊刃驾杀')
         # 羊刃逢冲
         chong_map = {'子':'午','午':'子','卯':'酉','酉':'卯','寅':'申','申':'寅','巳':'亥','亥':'巳','辰':'戌','戌':'辰','丑':'未','未':'丑'}
         if yangren_zhi in chong_map and chong_map[yangren_zhi] in zhis:
             tags.append('羊刃逢冲')
     # 五行组合
     wx = ZHI_WX
-    if rizhu and rizhu[0] in '甲乙' and ss['食神'] + ss['伤官'] >= 1:
+    if rizhu and rizhu[0] in '甲乙' and _ge(shishang, 'shishang', 1):
         tags.append('木火通明')
-    if rizhu and rizhu[0] in '庚辛' and ss['正财'] + ss['偏财'] >= 1:
+    if rizhu and rizhu[0] in '庚辛' and _ge(cai, 'cai', 1):
         tags.append('金水相涵')
-    if yueling in '申酉' and ss['正印'] + ss['偏印'] >= 2:
+    if yueling in '申酉' and _ge(yin, 'yin', 2):
         tags.append('火炼秋金')
     # 合冲
     if ('寅' in zhis and '申' in zhis) or ('巳' in zhis and '亥' in zhis):
@@ -129,12 +156,13 @@ def main():
         else:
             primary = ''
             aux = []
-        cur.execute("UPDATE case_features SET mech_primary=?, mech_aux=? WHERE case_id=?",
-                    (primary, json.dumps(aux, ensure_ascii=False), case_id))
+        cur.execute("UPDATE case_features SET mech_primary=?, mech_aux=?, mech_ver=? WHERE case_id=?",
+                    (primary, json.dumps(aux, ensure_ascii=False),
+                     1 if SS_COL == 'shishen_config' else 2, case_id))
         n += 1
     conn.commit()
     # 统计
-    print(f'打标完成: {n} 例 ｜ 十神口径 = {SS_COL}')
+    print(f'打标完成: {n} 例 ｜ 十神口径 = {SS_COL} ｜ 阈值 = {"原值(老尺)" if _TH is None else "重标定"}')
     if n_fallback:
         print(f'⚠ 回退老尺（shishen_quan 为空）: {n_fallback} 例 —— 这批的比劫阈值口径不一致，须排查')
     print('主标签分布（前 15）:')
